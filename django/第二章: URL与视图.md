@@ -42,8 +42,12 @@ request来接收到这些数据，然后存储到数据库中，最后再把执�
 的返回结果必须是 HttpResponseBase 对象或者子类的对象。示例代码如下：
 ` ``python
 from django.http import HttpResponse
+` ``
+` ``python
 def book_list(request):
-return HttpResponse("书籍列表！")
+` ``
+` ``python
+return HttpResponse("书籍列表！")</br>
 ` ``
 ## URL映射：
 视图写完后，要与URL进行映射，也即用户在浏览器中输入什么 url 的时候可以请求到这个视图
