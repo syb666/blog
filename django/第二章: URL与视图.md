@@ -40,15 +40,18 @@ HttpRequest）对象。这个对象存储了请求过来的所有信息，包括
 等。在视图中，一般是完成逻辑相关的操作。比如这个请求是添加一篇博客，那么可以通过
 request来接收到这些数据，然后存储到数据库中，最后再把执行的结果返回给浏览器。视图函数
 的返回结果必须是 HttpResponseBase 对象或者子类的对象。示例代码如下：
+` ``python
 from django.http import HttpResponse
 def book_list(request):
 return HttpResponse("书籍列表！")
+` ``
 ## URL映射：
 视图写完后，要与URL进行映射，也即用户在浏览器中输入什么 url 的时候可以请求到这个视图
 函数。在用户输入了某个 url ，请求到我们的网站的时候， django 会从项目的 urls.py 文件中
 寻找对应的视图。在 urls.py 文件中有一个 urlpatterns 变量，以后 django 就会从这个变量中
 读取所有的匹配规则。匹配规则需要使用 django.urls.path 函数进行包裹，这个函数会根据传入
 的参数返回 URLPattern 或者是 URLResolver 的对象。示例代码如下：
+` ``python
 from django.contrib import admin
 from django.urls import path
 from book import views
@@ -56,6 +59,7 @@ urlpatterns = [
 path('admin/', admin.site.urls),
 path('book/',views.book_list)
 ]
+` ``
 ## URL中添加参数：
 有时候， url 中包含了一些参数需要动态调整。比如简书某篇文章的详情页的url，
 是 https://www.jianshu.com/p/a5aab9c4978e 后面的 a5aab9c4978e 就是这篇文章的 id ，那么简
@@ -63,25 +67,24 @@ path('book/',views.book_list)
 如何在 django 中实现这种需求呢。这时候我们可以在 path 函数中，使用尖括号的形式来定义一
 个参数。比如我现在想要获取一本书籍的详细信息，那么应该在 url 中指定这个参数。示例代码
 如下：
-from django.contrib import admin
-13
+'''from django.contrib import admin
 from django.urls import path
 from book import views
 urlpatterns = [
 path('admin/', admin.site.urls),
 path('book/',views.book_list),
 path('book/<book_id>/',views.book_detail)
-]
+]'''
 而 views.py 中的代码如下：
 def book_detail(request,book_id):
 text = "您输入的书籍的id是：%s" % book_id
 return HttpResponse(text)
 当然，也可以通过查询字符串的方式传递一个参数过去。示例代码如下：
-urlpatterns = [
+'''urlpatterns = [
 path('admin/', admin.site.urls),
 path('book/',views.book_list),
 path('book/detail/',views.book_detail)
-]
+]'''
 在 views.py 中的代码如下：
 def book_detail(request):
 book_id = request.GET.get("id")
@@ -93,7 +96,7 @@ return HttpResponse(text)
 在 urls.py 中进行映射，肯定会让代码显得非常乱。因此 django 给我们提供了一个方法，可以
 在 app 内部包含自己的 url 匹配规则，而在项目的 urls.py 中再统一包含这个 app 的 urls 。
 使用这个技术需要借助 include 函数。示例代码如下：
-# first_project/urls.py文件：
+first_project/urls.py文件：
 from django.contrib import admin
 from django.urls import path,include
 14
@@ -175,7 +178,7 @@ path('book/',include("book.urls"))
 ]
 当然也可以传递 namespace 参数来指定一个实例命名空间，但是在使用实例命名空间之前，
 必须先指定一个应用命名空间。示例代码如下：
-# 主urls.py文件：
+主urls.py文件：
 from django.urls import path,include
 urlpatterns = [
 path('movie/',include('movie.urls',namespace='movie'))
@@ -183,7 +186,7 @@ path('movie/',include('movie.urls',namespace='movie'))
 然后在 movie/urls.py 中指定应用命名空间。实例代码如下：
 from django.urls import path
 from . import views
-# 应用命名空间
+应用命名空间
 app_name = 'movie'
 urlpatterns = [
 path('',views.movie,name='index'),
@@ -212,9 +215,7 @@ urlpatterns = [
 path('blog/', views.page),
 path('blog/page<int:num>/', views.page),
 ]
-# View (in blog/views.py)
 def page(request, num=1):
-# Output the appropriate page of blog entries, according to num.
 ...
 当在访问 blog/ 的时候，因为没有传递 num 参数，所以会匹配到第一个url，这时候就执
 行 view.page 这个视图函数，而在 page 函数中，又有 num=1 这个默认参数。因此这时候就可以
