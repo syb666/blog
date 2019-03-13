@@ -774,13 +774,11 @@ blank 是针对表单的，如果 blank=True，表示你的表单填写该字段
 
 ## 60 QueryDict和dict区别
 
-1. 在HttpRequest对象中, GET和POST属性是django.http.QueryDict类的实例。
-2. QueryDict类似字典的自定义类，用来处理单键对应多值的情况。
-   在 HttpRequest 对象中,属性 GET 和 POST 得到的都是 django.http.QueryDict 所创建的实例。这是一个
-3. django 自定义的类似字典的类，用来处理同一个键带多个值的情况。
-4. 在 python 原始的字典中，当一个键出现多个值的时候会发生冲突，只保留最后一个值。而在 HTML 表单中，通常会发生一个键有多个值的情况，例如 <select multiple> （多选框）就是一个很常见情况。
-5. request.POST 和request.GET 的QueryDict 在一个正常的请求/响应循环中是不可变的。若要获得可变的版本，需要使用.copy()方法。
-
+* 在HttpRequest对象中, GET和POST属性是django.http.QueryDict类的实例。
+* QueryDict类似字典的自定义类，用来处理单键对应多值的情况。在 HttpRequest 对象中,属性 GET 和 POST 得到的都是 django.http.QueryDict 所创建的实例。这是一个
+* django 自定义的类似字典的类，用来处理同一个键带多个值的情况。
+* 在 python 原始的字典中，当一个键出现多个值的时候会发生冲突，只保留最后一个值。而在 HTML 表单中，通常会发生一个键有多个值的情况，例如 <selectmultiple> （多选框）就是一个很常见情况。
+* request.POST 和request.GET 的QueryDict 在一个正常的请求/响应循环中是不可变的。若要获得可变的版本，需要使用.copy()方法。
  
 django QuerySet对象转换成字典对象
 
@@ -800,7 +798,6 @@ u_dict = model_to_dict(u)
 这是一个构造函数，其中 query_string 需要一个字符串，例如：</br> 
 `QueryDict('a=1&a=2&c=3')</br>`
 `<QueryDict: {'a': ['1', '2'], 'c': ['3']}></br>`
-
 
 ## 61 谈谈你对restful规范的认识？
 
