@@ -774,28 +774,102 @@ blank 是针对表单的，如果 blank=True，表示你的表单填写该字段
 
 ## 60 QueryDict和dict区别
 
-在HttpRequest对象中, GET和POST属性是django.http.QueryDict类的实例。
-QueryDict类似字典的自定义类，用来处理单键对应多值的情况。
-在 HttpRequest 对象中,属性 GET 和 POST 得到的都是 django.http.QueryDict 所创建的实例。这是一个
-django 自定义的类似字典的类，用来处理同一个键带多个值的情况。
-在 python 原始的字典中，当一个键出现多个值的时候会发生冲突，只保留最后一个值。而在 HTML 表单中，通常会发生一个键有多个值的情况，例如 <select multiple> （多选框）就是一个很常见情况。
-request.POST 和request.GET 的QueryDict 在一个正常的请求/响应循环中是不可变的。若要获得可变的版本，需要使用.copy()方法。
+1. 在HttpRequest对象中, GET和POST属性是django.http.QueryDict类的实例。
+2. QueryDict类似字典的自定义类，用来处理单键对应多值的情况。
+   在 HttpRequest 对象中,属性 GET 和 POST 得到的都是 django.http.QueryDict 所创建的实例。这是一个
+3. django 自定义的类似字典的类，用来处理同一个键带多个值的情况。
+4. 在 python 原始的字典中，当一个键出现多个值的时候会发生冲突，只保留最后一个值。而在 HTML 表单中，通常会发生一个键有多个值的情况，例如 <select multiple> （多选框）就是一个很常见情况。
+5. request.POST 和request.GET 的QueryDict 在一个正常的请求/响应循环中是不可变的。若要获得可变的版本，需要使用.copy()方法。
+
  
 django QuerySet对象转换成字典对象
+
 ```python
->manage.py shell
->>> from django.contrib.auth.models import User
->>> from django.forms.models import model_to_dict
->>> u = User.objects.get(id=1)
->>> u_dict = model_to_dict(u)
->>> type(u)
-<class 'django.contrib.auth.models.User'>
->>> type(u_dict)
-<type 'dict'>
-    
-    1.QueryDict.__init__(query_string=None, mutable=False, encoding=None)
-　　这是一个构造函数，其中 query_string 需要一个字符串，例如：
- 
->>> QueryDict('a=1&a=2&c=3')
-<QueryDict: {'a': ['1', '2'], 'c': ['3']}>
+manage.py shell
+from django.contrib.auth.models import User
+from django.forms.models import model_to_dict
+u = User.objects.get(id=1)
+u_dict = model_to_dict(u)
 ```
+`type(u)</br>`
+`<class 'django.contrib.auth.models.User'>`
+`type(u_dict)</br>`
+`<type 'dict'></br>`
+
+`QueryDict.__init__(query_string=None, mutable=False, encoding=None)`
+这是一个构造函数，其中 query_string 需要一个字符串，例如：</br> 
+`QueryDict('a=1&a=2&c=3')</br>`
+`<QueryDict: {'a': ['1', '2'], 'c': ['3']}></br>`
+
+
+## 61 谈谈你对restful规范的认识？
+
+首先restful是一种软件架构风格或者说是一种设计风格，并不是标准，它只是提供了一组设计#原则和约束条件，主要用于客户端和服务器交互类的软件。</br>     
+就像设计模式一样，并不是一定要遵循这些原则，而是基于这个风格设计的软件可以更简洁，更#有层次，我们可以根据开发的实际情况，做相应的改变。</br>
+它里面提到了一些规范，例如：</br>
+
+* 1. restful 提倡面向资源编程,在url接口中尽量要使用名词，不要使用动词</br>   
+
+* 2. 在url接口中推荐使用Https协议，让网络接口更加安全</br>
+   `https://www.bootcss.com/v1/mycss？page=3`</br>
+    （Https是Http的安全版，即HTTP下加入SSL层，HTTPS的安全基础是SSL，</br>
+   因此加密的详细内容就需要SSL（安全套接层协议））</br>    
+
+* 3. 在url中可以体现版本号</br>
+   https://v1.bootcss.com/mycss</br>
+   不同的版本可以有不同的接口，使其更加简洁，清晰</br>
+   
+* 4. url中可以体现是否是API接口 </br>
+   https://www.bootcss.com/api/mycss  </br>    
+   
+* 5. url中可以添加条件去筛选匹配</br>
+   https://www.bootcss.com/v1/mycss？page=3      </br>      
+   
+* 6. 、可以根据Http不同的method，进行不同的资源操作</br>
+   （5种方法：GET / POST / PUT / DELETE / PATCH）</br>      
+   
+* 7. 响应式应该设置状态码</br>
+
+* 8. 有返回值，而且格式为统一的json格式 </br>         
+
+* 9. 返回错误信息</br>
+   返回值携带错误信息  </br>        
+   
+* 10. 返回结果中要提供帮助链接，即API最好做到Hypermedia</br>
+   如果遇到需要跳转的情况 携带调转接口的URL</br>
+   
+```python
+ret = {
+     code: 1000,
+     data:{
+     id:1,
+     name:'小强',
+     depart_id:http://www.luffycity.com/api/v1/depart/8/
+     }
+}
+```
+
+## 62 Django 本身提供了 runserver，为什么不能用来部署？
+
+   runserver 方法是调试 Django 时经常用到的运行方式，它使用 Django 自带的  WSGI Server 运行，主要在测试和开发中使用，并且 runserver 开启的方式也是单进程 。  
+   uWSGI 是一个 Web 服务器，它实现了 WSGI 协议、uwsgi、http 等协议。注意 uwsgi 是一种通信协议，而 uWSGI 是实现 uwsgi 协议和 WSGI 协议的 Web 服务器。
+   uWSGI 具有超快的性能、低内存占用和多 app 管理等优点，并且搭配着 Nginx  就是一个生产环境了，能够将用户访问请求与应用 app 隔离开，实现真正的部署 。相比来讲，支持的并发量更高，方便管理多进程，发挥多核的优势，提升性能。
+   
+## 63 Tornado 的核是什么？   
+
+Tornado 的核心是 ioloop 和 iostream 这两个模块，前者提供了一个高效的 I/O 事件循环，后者则封装了 一个无阻塞的 socket 。通过向 ioloop 中添加网络 I/O 事件，利用无阻塞的 socket ，再搭配相应的回调 函数，便可达到梦寐以求的高效异步执行。
+
+## 64  Django重定向你是如何实现的？用的什么状态码？
+1. 使用HttpResponseRedirect 
+2. redirect 和reverse 
+3. 状态码：302,301
+
+## 65 Django中如何加载初始化数据
+Django在创建对象时在掉用save()方法后，ORM框架会把对象的属性转换为写入到数据库中，实现对数据库的初始化；通过操作对象，查询数据库，将查询集返回给视图函数，通过模板语言展现在前端页面
+
+
+## 66 简述Django下的（内建）缓存机制  
+
+ Django根据设置的缓存方式，浏览器第一次请求时，cache会缓存单个变量或整个网页等内容到硬盘或者内存中，同时设置response头部，当浏览器再次发起请求时，附带f-Modified-Since请求时间到Django，Django 发现f-Modified-Since会先去参数之后，会与缓存中的过期时间相比较，如果缓存时间比较新，则会重新请求数据，并缓存起来然后返回response给客户端，如果缓存没有过期，则直接从缓存中提取数据，返回给response给客户端。
+
+
