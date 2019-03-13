@@ -771,3 +771,78 @@ Django之密码加密
 一句话概括
 null 是针对数据库而言，如果 null=True, 表示数据库的该字段可以为空。NULL represents non-existent data.
 blank 是针对表单的，如果 blank=True，表示你的表单填写该字段的时候可以不填。比如 admin 界面下增加 model 一条记录的时候。直观的看到就是该字段不是粗体
+
+## 60 QueryDict和dict区别
+
+在HttpRequest对象中, GET和POST属性是django.http.QueryDict类的实例。
+QueryDict类似字典的自定义类，用来处理单键对应多值的情况。
+在 HttpRequest 对象中,属性 GET 和 POST 得到的都是 django.http.QueryDict 所创建的实例。这是一个
+django 自定义的类似字典的类，用来处理同一个键带多个值的情况。
+在 python 原始的字典中，当一个键出现多个值的时候会发生冲突，只保留最后一个值。而在 HTML 表单中，通常会发生一个键有多个值的情况，例如 <select multiple> （多选框）就是一个很常见情况。
+request.POST 和request.GET 的QueryDict 在一个正常的请求/响应循环中是不可变的。若要获得可变的版本，需要使用.copy()方法。
+ 
+django QuerySet对象转换成字典对象
+```python
+>manage.py shell
+>>> from django.contrib.auth.models import User
+>>> from django.forms.models import model_to_dict
+>>> u = User.objects.get(id=1)
+>>> u_dict = model_to_dict(u)
+>>> type(u)
+<class 'django.contrib.auth.models.User'>
+>>> type(u_dict)
+<type 'dict'>
+    
+    1.QueryDict.__init__(query_string=None, mutable=False, encoding=None)
+　　这是一个构造函数，其中 query_string 需要一个字符串，例如：
+ 
+>>> QueryDict('a=1&a=2&c=3')
+<QueryDict: {'a': ['1', '2'], 'c': ['3']}>
+```
+## 61 谈谈你对restful规范的认识？
+首先restful是一种软件架构风格或者说是一种设计风格，并不是标准，它只是提供了一组设计#原则和约束条件，主要用于客户端和服务器交互类的软件。</br>     
+就像设计模式一样，并不是一定要遵循这些原则，而是基于这个风格设计的软件可以更简洁，更#有层次，我们可以根据开发的实际情况，做相应的改变。</br>
+它里面提到了一些规范，例如：</br>
+
+1. restful 提倡面向资源编程,在url接口中尽量要使用名词，不要使用动词</br>    
+
+2. 在url接口中推荐使用Https协议，让网络接口更加安全</br>
+   `https://www.bootcss.com/v1/mycss？page=3`</br>
+    （Https是Http的安全版，即HTTP下加入SSL层，HTTPS的安全基础是SSL，</br>
+   因此加密的详细内容就需要SSL（安全套接层协议））</br>    
+   
+3. 在url中可以体现版本号</br>
+   https://v1.bootcss.com/mycss</br>
+   不同的版本可以有不同的接口，使其更加简洁，清晰</br>
+   
+4. url中可以体现是否是API接口 </br>
+   https://www.bootcss.com/api/mycss  </br>    
+   
+5. url中可以添加条件去筛选匹配</br>
+   https://www.bootcss.com/v1/mycss？page=3      </br>      
+   
+6. 、可以根据Http不同的method，进行不同的资源操作</br>
+   （5种方法：GET / POST / PUT / DELETE / PATCH）</br>      
+   
+7. 响应式应该设置状态码</br>
+
+8. 有返回值，而且格式为统一的json格式 </br>         
+
+9. 返回错误信息</br>
+   返回值携带错误信息  </br>        
+   
+10. 返回结果中要提供帮助链接，即API最好做到Hypermedia</br>
+   如果遇到需要跳转的情况 携带调转接口的URL</br>
+   
+```python
+ret = {
+     code: 1000,
+     data:{
+     id:1,
+     name:'小强',
+     depart_id:http://www.luffycity.com/api/v1/depart/8/
+     }
+}
+```
+
+
