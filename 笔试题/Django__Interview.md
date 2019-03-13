@@ -487,3 +487,287 @@ DateTimeField.auto_now_add
  
 1，select_related适用于外键和多对一的关系查询；
 2，prefetch_related适用于一对多或者多对多的查询。
+## 39 当删除一个外键的时候，如何把与其关联的对应关系删除
+1. 删除关联表中的数据时,当前表与其关联的field的操作
+2. django2.0之后，表与表之间关联的时候,必须要写on_delete参数,否则会报异常
+
+## 40 class Meta中的元信息字段有哪些
+
+通过一个内嵌类 "class Meta" 给你的 model 定义元数据, 类似下面这样:
+```python
+class Foo(models.Model): 
+    bar = models.CharField(maxlength=30)
+ 
+    class Meta: 
+        # ...
+```
+Model 元数据就是 "不是一个字段的任何数据" -- 比如排序选项, admin 选项等等.</br>
+ 
+下面是所有可能用到的 Meta 选项. 没有一个选项是必需的. 是否添加 class Meta 到你的 model 完全是可选的.</br>
+ 
+app_label</br>
+app_label这个选项只在一种情况下使用，就是你的模型类不在默认的应用程序包下的models.py文件中，这时候你需要指定你这个模型类是那个应用程序的。比如你在其他地方写了一个模型类，而这个模型类是属于myapp的，那么你这是需要指定为：</br>
+ 
+app_label='myapp'</br>
+db_table</br>
+db_table是用于指定自定义数据库表名的。Django有一套默认的按照一定规则生成数据模型对应的数据库表名，如果你想使用自定义的表名，就通过这个属性指定，比如：</br>
+table_name='my_owner_table'   </br>
+若不提供该参数, Django 会使用 app_label + '_' + module_name 作为表的名字.</br>
+若你的表的名字是一个 SQL 保留字, 或包含 Python 变量名不允许的字符--特别是连字符 --没关系. Django 会自动在幕后替你将列名字和表名字用引号引起来.
+ 
+db_tablespace</br>
+有些数据库有数据库表空间，比如Oracle。你可以通过db_tablespace来指定这个模型对应的数据库表放在哪个数据库表空间。</br>
+ 
+get_latest_by</br>
+由于Django的管理方法中有个lastest()方法，就是得到最近一行记录。如果你的数据模型中有 DateField 或 DateTimeField 类型的字段，你可以通过这个选项来指定lastest()是按照哪个字段进行选取的。</br>
+一个 DateField 或 DateTimeField 字段的名字. 若提供该选项, 该模块将拥有一个 get_latest() 函数以得到 "最新的" 对象(依据那个字段):</br>
+get_latest_by = "order_date"</br>
+ 
+managed</br>
+由于Django会自动根据模型类生成映射的数据库表，如果你不希望Django这么做，可以把managed的值设置为False。</br>
+默认值为True,这个选项为True时Django可以对数据库表进行 migrate或migrations、删除等操作。在这个时间Django将管理数据库中表的生命周期</br>
+如果为False的时候，不会对数据库表进行创建、删除等操作。可以用于现有表、数据库视图等，其他操作是一样的。</br>
+ 
+order_with_respect_to</br>
+这个选项一般用于多对多的关系中，它指向一个关联对象。就是说关联对象找到这个对象后它是经过排序的。指定这个属性后你会得到一个get_XXX_order()和set_XXX_order（）的方法,通过它们你可以设置或者回去排序的对象。</br>
+ 
+举例来说, 如果一个 PizzaToppping 关联到一个 Pizza 对象, 这样做:</br>
+ 
+order_with_respect_to = 'pizza'</br>
+...就允许 toppings 依照相关的 pizza 来排序.</br>
+ 
+ordering</br>
+这个字段是告诉Django模型对象返回的记录结果集是按照哪个字段排序的。比如下面的代码：</br>
+ 
+ordering=['order_date'] </br>
+按订单升序排列</br>
+ordering=['-order_date'] </br>
+按订单降序排列，-表示降序</br>
+ordering=['?order_date'] </br>
+随机排序，？表示随机</br>
+ordering = ['-pub_date', 'author']</br>
+对 pub_date 降序,然后对 author 升序</br>
+需要注意的是:不论你使用了多少个字段排序, admin 只使用第一个字段</br>
+ 
+permissions</br>
+permissions主要是为了在Django Admin管理模块下使用的，如果你设置了这个属性可以让指定的方法权限描述更清晰可读。</br>
+ 
+要创建一个对象所需要的额外的权限. 如果一个对象有 admin 设置, 则每个对象的添加,删除和改变权限会人(依据该选项)自动创建.下面这个例子指定了一个附加权限</br> 
+can_deliver_pizzas:</br>
+ 
+permissions = (("can_deliver_pizzas", "Can deliver pizzas"),)</br>
+这是一个2-元素 tuple 的tuple或列表, 其中两2-元素 tuple 的格式为:(permission_code, human_readable_permission_name).</br>
+ 
+unique_together</br>
+unique_together这个选项用于：当你需要通过两个字段保持唯一性时使用。这会在 Django admin 层和数据库层同时做出限制(也就是相关的 UNIQUE 语句会被包括在 CREATE TABLE 语句中)。</br>
+比如：一个Person的FirstName和LastName两者的组合必须是唯一的，那么需要这样设置：</br>
+ 
+unique_together = (("first_name", "last_name"),)</br>
+verbose_name</br>
+verbose_name的意思很简单，就是给你的模型类起一个更可读的名字：</br>
+ 
+verbose_name = "pizza"</br>
+若未提供该选项, Django 则会用一个类名字的 munged 版本来代替: CamelCase becomes camel case.</br>
+ 
+verbose_name_plural</br>
+这个选项是指定，模型的复数形式是什么，比如：</br>
+ 
+verbose_name_plural = "stories"</br>
+若未提供该选项, Django 会使用 verbose_name + "s".</br>
+
+## 41 多对多关联的表，如何插入数据？如何删除数据？如何更新数据？
+
+
+## 42 django的M2M关系，如何手动生成第三张表？
+```python
+tags = models.ManyToManyField(
+        to="Tag",
+        through='Article2Tag',
+        through_fields=('article', 'tag'),
+    )
+```
+
+## 43 在Django中，服务端给客户端响应信息有几种方式？分别是什么？
+* HTTPresponse，
+* jsonresponse,
+* redirect
+
+## 44 在视图函数中，常用的验证装饰器有哪些？
+
+## 45 如何给一个视图函数加上缓存？
+
+## 46 web框架的本质是什么？
+本质上其实就是一个socket服务端，用户的浏览器其实就是一个socket客户端。
+
+## 47 创建Django工程、Django app、以及运行的命令
+
+
+## 48 django中csrf的实现机制
+
+* 第一步：django第一次响应来自某个客户端的请求时,后端随机产生一个token值，把这个token保存在SESSION状态中;同时,后端把这个token放到cookie中交给前端页面；
+* 第二步：下次前端需要发起请求（比如发帖）的时候把这个token值加入到请求数据或者头信息中,一起传给后端；Cookies:{csrftoken:xxxxx}
+* 第三步：后端校验前端请求带过来的token和SESSION里的token是否一致；
+
+## 49 Django App的目录结构
+
+图10
+
+## 50 Django 获取用户前端请求数据的几种方式
+
+@get和@post使用
+1：在views模板下编写测试函数(记得在urls.py文件中进行相应配置) 
+2：将刚刚封装的函数所在模板引入views.py 
+3：使用@get进行拦截
+ 
+@params，response_success，response_failure使用
+第一种
+```python
+@login_required
+def simple_view(request):
+       return HttpResponse()
+``` 
+2 通过对基于函数视图或者基于类视图使用一个装饰器实现控制：  
+```@login_required(MyView.as_view())```
+3 通过覆盖mixin的类视图的dispatch方法实现控制：
+
+## 51 描述下 自定义simple_tag
+
+* 自定义filter：{{ 参数1|filter函数名:参数2 }}
+  * 1.可以与if标签来连用
+  * 2.自定义时需要写两个形参
+* simple_tag:{% simple_tag函数名 参数1 参数2 %}
+  * 1.可以传多个参数,没有限制
+  * 2.不能与if标签来连用
+```python
+@register.simple_tag
+def multi_tag(x,y):
+    return x*y
+```
+
+## 52 什么是Cookie、如何获取、设置Cookie
+
+会话跟踪技术，保留用户
+Cookie是由服务器创建，然?后通过响应发送给客户端?的一个键值对。
+具体一个浏览器针对一个服务器存储的key-value({ })
+```python
+response.set_cookie("is_login",True) 
+request.COOKIES.get("is_login")
+```
+
+## 53 什么是session，与cookie的对比、设置、获取、清空session
+
+   Session是服务器端技术，利用这个技术，服务器在运行时可以 为每一个用户的浏览器创建一个其独享的session对象，由于 session为用户浏览器独享，所以用户在访问服务器的web资源时 ，可以把各自的数据放在各自的session中，当用户再去访问该服务器中的其它web资源时，其它web资源再从用户各自的session中 取出数据为用户服务。
+   
+
+启用session
+编辑settings.py中的一些配置
+MIDDLEWARE_CLASSES 确保其中包含以下内容
+
+`'django.contrib.sessions.middleware.SessionMiddleware',`
+
+INSTALLED_APPS 是包含
+`'django.contrib.sessions',`
+
+```python
+# 创建或修改 session：
+request.session[key] = value
+# 获取 session：
+request.session.get(key,default=None)
+# 删除 session
+del request.session[key] # 不存在时报错
+```
+
+## 54 什么是CSRF，及防范方式
+
+1. 启用中间件
+2. post请求
+3. 验证码
+4. 表单中添加{%csrf_token%}标签
+
+## 55 get请求和post请求的区别
+
+请求方式: get与post请求
+* GET提交的数据会放在URL之后，以?分割URL和传输数据，参数之间以&相连，如EditBook?name=test1&id=123456. POST方法是把提交的数据放在HTTP包的Body中.
+* GET提交的数据大小有限制（因为浏览器对URL的长度有限制），而POST方法提交的数据没有限制.
+* GET与POST请求在服务端获取请求数据方式不同。
+* GET方式提交数据，会带来安全问题，比如一个登录页面，通过GET方式提交数据时，用户名和密码将出现在URL上，如果页面可以被缓存或者其他人可以访问这台机器，就可以从历史记录获得该用户的账号和密码.
+
+
+## 57 WSGI / uwsgi/ uWSGI区分
+1. WSGI
+WSGI的全称是Web Server Gateway Interface（Web服务器网关接口），它不是服务器、python模块、框架、API或者任何软件，只是一种描述web服务器（如nginx，uWSGI等服务器）如何与web应用程序（如用Django、Flask框架写的程序）通信的规范。
+server和application的规范在PEP3333中有具体描述，要实现WSGI协议，必须同时实现web server和web application，当前运行在WSGI协议之上的web框架有Bottle, Flask, Django。
+2. uWSGI
+uWSGI是一个全功能的HTTP服务器，实现了WSGI协议、uwsgi协议、http协议等。它要做的就是把HTTP协议转化成语言支持的网络协议。比如把HTTP协议转化成WSGI协议，让Python可以直接使用。
+3. uwsgi
+ 与WSGI一样，是uWSGI服务器的独占通信协议，用于定义传输信息的类型(type of information)。每一个uwsgi packet前4byte为传输信息类型的描述，与WSGI协议是两种东西，据说该协议是fcgi【FCGI：fast common gateway interface 快速通用网关接口协议的10倍快。
+
+## 58 如何使用django加密
+
+Django 内置的User类提供了用户密码的存储、验证、修改等功能，默认使用pbkdf2_sha256方式来存储和管理用的密码。
+django通过setting.py文件中的PASSWORD_HASHERS来设置选择要使用的算法，列表的第一个元素 (即settings.PASSWORD_HASHERS[0]) 会用于储存密码， 所有其它元素都是用于验证的哈希值，它们可以用于检查现有的密码。意思是如果你打算使用不同的算法，你需要修改PASSWORD_HASHERS，来将你最喜欢的算法在列表中放在首位。
+ 
+一个settings中的Password_hashers看起来是这样的：
+ 
+```python 
+PASSWORD_HASHERS = (
+ 
+    'django.contrib.auth.hashers.PBKDF2PasswordHasher',
+    'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
+    'django.contrib.auth.hashers.BCryptSHA256PasswordHasher',
+    'django.contrib.auth.hashers.BCryptPasswordHasher',
+    'django.contrib.auth.hashers.SHA1PasswordHasher',
+    'django.contrib.auth.hashers.MD5PasswordHasher',
+    'django.contrib.auth.hashers.CryptPasswordHasher',
+)
+```
+具体的密码生成以及验证实现
+```python
+from django.contrib.auth.hashers import make_password,check_password
+pwd='4562154'
+mpwd=make_password(pwd,None,'pbkdf2_sha256') # 创建django密码，第三个参数为加密算法
+pwd_bool=check_password(pwd,mpwd) # 返回的是一个bool类型的值，验证密码正确与否
+``` 
+ 
+Django之密码加密
+通过django自带的类库，来加密解密很方便，下面来简单介绍下；
+ 
+导入包：
+ 
+`from django.contrib.auth.hashers import make_password, check_password`
+从名字就可以看出来他们的作用了。
+ 
+一个是生成密码，一个是核对密码。
+ 
+例如：
+ 
+`make_password("123456")`
+得到结果：
+ 
+`u'pbkdf2_sha25615000MAjic3nDGFoi$qbclz+peplspCbRF6uoPZZ42aJIIkMpGt6lQ+Iq8nfQ='`
+另外也可以通过参数来生成密码：
+ 
+`>>> make_password("123456", None, 'pbkdf2_sha256')`
+校验:
+ 
+校验就是通过check_password(原始值, 生成的密文)来校验密码的。
+ 
+`>>> check_password("123456","pbkdf2_sha25615000MAjic3nDGFoi$qbclz+peplspCbRF6uoPZZ42aJIIkMpGt6lQ+Iq8nfQ=")`
+`True`
+
+
+## 59 解释blank和null
+
+1. blank
+设置为True时，字段可以为空。设置为False时，字段是必须填写的。字符型字段CharField和TextField是用空字符串来存储空值的。如果为True，字段允许为空，默认不允许。
+ 
+2. null
+设置为True时，django用Null来存储空值。日期型、时间型和数字型字段不接受空字符串。所以设置IntegerField，DateTimeField型字段可以为空时，需要将blank，null均设为True。
+
+如果为True，空值将会被存储为NULL，默认为False。
+
+如果想设置BooleanField为空时可以选用NullBooleanField型字段。
+
+一句话概括
+null 是针对数据库而言，如果 null=True, 表示数据库的该字段可以为空。NULL represents non-existent data.
+blank 是针对表单的，如果 blank=True，表示你的表单填写该字段的时候可以不填。比如 admin 界面下增加 model 一条记录的时候。直观的看到就是该字段不是粗体
