@@ -61,3 +61,4 @@
    mysql> flush privileges;
    一定要记得重启数据库。`service mysql restart` 
    ```
+10. 在本地项目中修改为```DEBUG = False```时导致整个页面的静态文件加载不出来，修改为```DEBUG = True```时静态文件成功加载
