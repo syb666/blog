@@ -34,4 +34,30 @@
     提交项目git push origin master
     拉取项目git pull origin master
     ```
-    
+9. 当部署完数据库时，要使用本地的Navicat连接服务器的mysql时，需要将mysql里的user为root中的Host 改为%，然后一定一定要记得重启数据库.
+   ```
+   mysql> USE mysql; -- 切换到 mysql DB
+   Database changed
+   mysql> SELECT User, Password, Host FROM user; -- 查看现有用户,密码及允许连接的主机
+   +------+----------+-----------+
+   | User | Password | Host      |
+   +------+----------+-----------+
+   | root |          | localhost |
+   +------+----------+-----------+
+   row in set (0.00 sec)
+   如果没有host创建host
+   如果没有"%"这个host值,就执行下面这两句:
+   mysql> update user set host='%' where user='root';
+   mysql> flush privileges;
+   mysql> SELECT User, Password, Host FROM user; -- 查看现有用户,密码及允许连接的主机
+   +------+----------+-----------+
+   | User | Password | Host      |
+   +------+----------+-----------+
+   | root |          |   %       |
+   +------+----------+-----------+
+   授权用户
+   任意主机以用户root和密码mypwd连接到mysql服务器
+   mysql> GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY 'mypwd' WITH GRANT OPTION;
+   mysql> flush privileges;
+   一定要记得重启数据库。`service mysql restart` 
+   ```
