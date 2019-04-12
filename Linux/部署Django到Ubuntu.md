@@ -62,3 +62,15 @@
    一定要记得重启数据库。`service mysql restart` 
    ```
 10. 在本地项目中修改为```DEBUG = False```时导致整个页面的静态文件加载不出来，修改为```DEBUG = True```时静态文件成功加载
+
+11. 在部署到服务器之后，登录账户时出现403错误，然后只需要在注册登录页面加上下面的代码就行了，这里就是设置一下csrf值。
+    ```
+    <script>
+            if(getCookie('csrftoken')){
+            }else{
+                $.ajax({
+                    data:{csrfmiddlewaretoken:'{{ csrf_token }}'},
+                })
+            }
+        </script>
+    ```
