@@ -74,3 +74,5 @@
             }
         </script>
     ```
+12. 当时在部署完项目时，可以使用公网ip访问，但是使用域名一直访问不了。老是出错显示让我把域名加入到```ALLOWED_HOSTS```这里面
+但是加上完后，重启了nginx还是不行，最后重启supervisor才可以。对于每次修改参数后一定要记得重启supervisor。```supervisord -c supervisor.conf```.
