@@ -166,5 +166,5 @@ Go程序的代码注释与C++保持一致，即同时支持以下两种用法：
 Go程序并不要求开发者在每个语句后面加上分号表示语句结束，这是与C和C++的一个明显不同之处。
 注意：强制左花括号{的放置位置，如果把左花括号{另起一行放置，这样做的结果是Go编译器报告编译错误。
 还需要注意的是，对一个Go项目中不能同时出现同一个方法(除了main)
-![](https://github.com/syb666/blog/edit/master/Goimages/image.png)
+![](https://github.com/syb666/blog/blob/master/Go/images/image.png)
 
