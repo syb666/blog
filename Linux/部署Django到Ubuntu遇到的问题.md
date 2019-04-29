@@ -76,7 +76,7 @@
     ```
 12. 当时在部署完项目时，可以使用公网ip访问，但是使用域名一直访问不了。老是出错显示让我把域名加入到```ALLOWED_HOSTS```这里面
 但是加上完后，重启了nginx还是不行，最后重启supervisor才可以。对于每次修改参数后一定要记得重启supervisor。```supervisord -c supervisor.conf```.
-13. 在修改IP访问者的信息进行分页时，修改完信息后。在服务器上不能显示修改的东西，这时重新启动一下uwsgi就好啦。```uwsgi --ini uwsgi.ini```。因为我们可以使用supervisor管理uwsgi，这时我们可以通过supervisor重新启动一下uwsgi。
+13. 在修改IP访问者的信息进行分页时，修改完信息后。在服务器上不能显示修改的东西，这时重新启动一下uwsgi就好啦。```uwsgi --ini uwsgi.ini```。因为我们可以使用supervisor管理uwsgi，这时我们可以通过supervisor重新启动一下uwsgi。然后使用命令```supervisord -c supervisor.conf```运行就可以了。以后如果想要启动uwsgi，就可以通过命令```supervisorctl -c supervisor.conf```进入到管理控制台，然后可以执行相关的命令进行管理：
     * status # 查看状态
     * start program_name #启动程序
     * restart program_name #重新启动程序
