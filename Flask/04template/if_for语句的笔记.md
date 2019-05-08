@@ -24,7 +24,7 @@
 </ul>
 遍历字典：
 <dl>
- {% for key, value in my_dict.iteritems() %}
+ {% for key, value in my_dict.items() %}
 <dt>{{ key|e }}</dt>
 <dd>{{ value|e }}</dd>
  {% endfor %}
