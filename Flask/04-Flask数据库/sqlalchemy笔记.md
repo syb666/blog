@@ -146,7 +146,120 @@ print(result.fetchone())
         __tablename__ = 'article'
         id = Column(Integer,primary_key=True,autoincrement=True)
         create_time = Column(Date)
-                   
+
+    article = Article(create_time=date(2017,10,10))
+    ```
+9. DateTime：存储时间，可以存储年月日时分秒毫秒等。映射到数据库中也是datetime类型。在Python代码中，可以使用`datetime.datetime`来指定。示例代码如下：
+    ```python
+    class Article(Base):
+        __tablename__ = 'article'
+        id = Column(Integer,primary_key=True,autoincrement=True)
+        create_time = Column(DateTime)
+
+    article = Article(create_time=datetime(2011,11,11,11,11,11))
+    ```
+10. Time：存储时间，可以存储时分秒。映射到数据库中也是time类型。在Python代码中，可以使用`datetime.time`来至此那个。示例代码如下：
+    ```python
+    class Article(Base):
+        __tablename__ = 'article'
+        id = Column(Integer,primary_key=True,autoincrement=True)
+        create_time = Column(Time)
+
+    article = Article(create_time=time(hour=11,minute=11,second=11))
+    ```
+11. Text：存储长字符串。一般可以存储6W多个字符。如果超出了这个范围，可以使用LONGTEXT类型。映射到数据库中就是text类型。
+12. LONGTEXT：长文本类型，映射到数据库中是longtext类型。
+
+
+### Column常用参数：
+1. primary_key：设置某个字段为主键。
+2. autoincrement：设置这个字段为自动增长的。
+3. default：设置某个字段的默认值。在发表时间这些字段上面经常用。
+4. nullable：指定某个字段是否为空。默认值是True，就是可以为空。
+5. unique：指定某个字段的值是否唯一。默认是False。
+6. onupdate：在数据更新的时候会调用这个参数指定的值或者函数。在第一次插入这条数据的时候，不会用onupdate的值，只会使用default的值。常用的就是`update_time`（每次更新数据的时候都要更新的值）。
+7. name：指定ORM模型中某个属性映射到表中的字段名。如果不指定，那么会使用这个属性的名字来作为字段名。如果指定了，就会使用指定的这个值作为参数。这个参数也可以当作位置参数，在第1个参数来指定。
+    ```python
+    title = Column(String(50),name='title',nullable=False)
+    title = Column('my_title',String(50),nullable=False)
+    ```
+
+### query可用参数：
+1. 模型对象。指定查找这个模型中所有的对象。
+```
+articles = session.query(Article).all()
+for article in articles:
+    print(article)
+```
+2. 模型中的属性。可以指定只查找某个模型的其中几个属性。
+```
+articles = session.query(Article.title,Article.price).all()
+for article in articles:
+    print(article)
+```
+3. 聚合函数。
+    * func.count：统计行的数量。
+    * func.avg：求平均值。
+    * func.max：求最大值。
+    * func.min：求最小值。
+    * func.sum：求和。
+    `func`上，其实没有任何聚合函数。但是因为他底层做了一些魔术，只要mysql中有的聚合函数，都可以通过func调用。
+
+```
+result = session.query(func.count(Article.id)).first()
+print(result)
+result = session.query(func.avg(Article.price)).first()
+print(result)
+result = session.query(func.max(Article.price)).first()
+print(result)
+result = session.query(func.min(Article.price)).first()
+print(result)
+result = session.query(func.sum(Article.price)).first()
+print(result)
+```
+
+
+### filter过滤条件：
+过滤是数据提取的一个很重要的功能，以下对一些常用的过滤条件进行解释，并且这些过滤条件都是只能通过filter方法实现的：
+1. equals：
+    ```python
+    article = session.query(Article).filter(Article.title == "title0").first()
+    print(article)
+    ```
+2. not equals:
+    ```python
+    query.filter(User.name != 'ed')
+    ```
+2. like：
+    ```python
+    query.filter(User.name.like('%ed%'))
+    ```
+
+3. in：
+    ```python
+    query.filter(User.name.in_(['ed','wendy','jack']))
+    # 同时，in也可以作用于一个Query
+    query.filter(User.name.in_(session.query(User.name).filter(User.name.like('%ed%'))))
+    ```
+
+4. not in：
+    ```python
+    query.filter(~User.name.in_(['ed','wendy','jack']))
+    ```
+5.  is null：
+    ```python
+    query.filter(User.name==None)
+    # 或者是
+    query.filter(User.name.is_(None))
+    ```
+
+6. is not null:
+    ```python
+    query.filter(User.name != None)
+    # 或者是
+    query.filter(User.name.isnot(None))
+    ```
+
 7. and：
     ```python
     from sqlalchemy import and_
@@ -159,7 +272,8 @@ print(result.fetchone())
 
 8. or：
     ```python
-    from sqlalchemy import or_  query.filter(or_(User.name=='ed',User.name=='wendy'))
+    from sqlalchemy import or_  
+    query.filter(or_(User.name=='ed',User.name=='wendy'))
     ```
 
 如果想要查看orm底层转换的sql语句，可以在filter方法后面不要再执行任何方法直接打印就可以看到了。比如：
