@@ -439,6 +439,9 @@ ORM层面删除数据，会无视mysql级别的外键约束。直接会将对应
 1. order_by：可以指定根据这个表中的某个字段进行排序，如果在前面加了一个-，代表的是降序排序。
 2. 在模型定义的时候指定默认排序：有些时候，不想每次在查询的时候都指定排序的方式，可以在定义模型的时候就指定排序的方式。有以下两种方式：
     * relationship的order_by参数：在指定relationship的时候，传递order_by参数来指定排序的字段。
+    ```
+        author = relationship("User",backref=backref("articles",order_by=create_time.desc()))
+    ```
     * 在模型定义中，添加以下代码：
 
      __mapper_args__ = {
@@ -449,7 +452,17 @@ ORM层面删除数据，会无视mysql级别的外键约束。直接会将对应
 
 ### limit、offset和切片操作：
 1. limit：可以限制每次查询的时候只查询几条数据。
+```
+articles = session.query(Article).limit(10).all()
+for article in articles:
+    print(article)
+```
 2. offset：可以限制查找数据的时候过滤掉前面多少条。
+```
+articles = session.query(Article).order_by(Article.id.desc()).offset(10).limit(10).all()
+for article in articles:
+    print(article)
+```
 3. 切片：可以对Query对象使用切片操作，来获取想要的数据。可以使用`slice(start,stop)`方法来做切片操作。也可以使用`[start:stop]`的方式来进行切片操作。一般在实际开发中，中括号的形式是用得比较多的。希望大家一定要掌握。示例代码如下：
 ```python
 articles = session.query(Article).order_by(Article.id.desc())[0:10]
@@ -460,7 +473,7 @@ articles = session.query(Article).order_by(Article.id.desc())[0:10]
 通过`lazy='dynamic'`，获取出来的多的那一部分的数据，就是一个`AppenderQuery`对象了。这种对象既可以添加新数据，也可以跟`Query`一样，可以再进行一层过滤。
 总而言之一句话：如果你在获取数据的时候，想要对多的那一边的数据再进行一层过滤，那么这时候就可以考虑使用`lazy='dynamic'`。
 lazy可用的选项：
-1. `select`：这个是默认选项。还是拿`user.articles`的例子来讲。如果你没有访问`user.articles`这个属性，那么sqlalchemy就不会从数据库中查找文章。一旦你访问了这个属性，那么sqlalchemy就会立马从数据库中查找所有的文章，并把查找出来的数据组装成一个列表返回。这也是懒加载。
+1. `select`：这个是默认选项。还是拿`user.articles`的例子来讲。如果你没有访问`user.articles`这个属性，那么sqlalchemy就不会从数据库中查找文章。一旦你访问了这个属性，那么sqlalchemy就会立马从数据库中查找所有的文章，并把查找出来的数据组装成一个列表返回。这也是懒加载。    
 2. `dynamic`：这个就是我们刚刚讲的。就是在访问`user.articles`的时候返回回来的不是一个列表，而是`AppenderQuery`对象。
 
 
