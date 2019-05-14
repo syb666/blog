@@ -24,7 +24,64 @@ pip install flask-sqlalchemy
 
 ### 查询数据：
 如果查找数据只是查找一个模型上的数据，那么可以通过`模型.query`的方式进行查找。`query`就跟之前的sqlalchemy中的query方法是一样用的。示例代码如下：
-```python
-users = User.query.order_by(User.id.desc()).all()
-print(users)
-```
+    ```python
+    users = User.query.order_by(User.id.desc()).all()
+    print(users)
+    ```
+    
+    ```
+    app.config['SQLALCHEMY_DATABASE_URI'] = DB_URI
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    db = SQLAlchemy(app)
+    # 明言胜于暗喻
+    class UserModel(db.Model):
+        __tablename__ = 'user_model'
+        id = db.Column(db.Integer,primary_key=True,autoincrement=True)
+        username = db.Column(db.String(50),nullable=False)
+
+        def __repr__(self):
+            return "<User(username: %s)>" % self.username
+
+    class Article(db.Model):
+        __tablename__ = 'article'
+        id = db.Column(db.Integer,primary_key=True,autoincrement=True)
+        title = db.Column(db.String(50),nullable=False)
+        uid = db.Column(db.Integer,db.ForeignKey("user_model.id"))
+
+        author = db.relationship("User",backref="artiles")
+
+    db.drop_all()
+    db.create_all()
+
+    # user = User(username='zhiliao')
+    # article = Article(title='title one')
+    # # cascade save-update
+    # article.author = user
+    #
+    # db.session.add(article)
+    # db.session.commit()
+    # order_by
+    # filter
+    # filter_by
+    # group_by
+    # join
+    # users = User.query.order_by(User.id.desc()).all()
+    # print(users)
+
+    # user = User.query.filter(User.username=='zhiliao').first()
+    # user.username = 'zhiliao1'
+    # db.session.commit()
+
+    # user = User.query.filter(User.username=='zhiliao1').first()
+    # db.session.delete(user)
+    # db.session.commit
+
+    # db.drop_all()
+    # db.create_all()
+
+    # user = User(username='小明')
+    # article = Article(title='1111')
+    # article.author = user
+    # db.session.add(article)
+    # db.session.commit()
+    ```
