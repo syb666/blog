@@ -76,3 +76,37 @@ captcha = StringField(validators=[Length(4,4)])
         if field.data != '1234':
             raise ValidationError('验证码错误！')
 ```
+### 使用WTForm渲染模板：
+首先在应该在get一个页面时，应该带一些值到模板中
+```
+if request.method=='GET':
+    form = SettingsForm()
+    return render_template('settings.html',form=form)
+```
+在模板中
+```
+<tr>
+    <td>{{ form.username.label }}</td>
+    <td>{{ form.username }}</td>
+</tr>
+<tr>
+    <td>{{ form.age.label }}</td>
+    <td>{{ form.age }}</td>
+</tr>
+<tr>
+    <td>{{ form.tags.label }}</td>
+    <td>{{ form.tags }}</td>
+</tr>
+<tr>
+    <td>{{ form.remember.label }}</td>
+    <td>{{ form.remember }}</td>
+</tr>
+```
+在定义的classForm类中
+```
+class SettingsForm(Form):
+    username = StringField("用户名",validators=[InputRequired()])
+    age = IntegerField("年龄",validators=[NumberRange(10,100)])
+    remember = BooleanField("记住我")
+    tags = SelectField(choices=[('1','Python'),('2','IOS')])
+```
