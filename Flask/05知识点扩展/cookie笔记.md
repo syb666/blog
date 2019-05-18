@@ -54,3 +54,29 @@ def hello_world():
     * `del session[key]`。
     * `session.clear()`：删除session中所有的值。
 4. 设置session的有效期：如果没有设置session的有效期。那么默认就是浏览器关闭后过期。如果设置session.permanent=True，那么就会默认在31天后过期。如果不想在31天后过期，那么可以设置`app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hour=2)`在两个小时后过期。
+```python
+from flask import Flask,session
+import os
+from datetime import timedelta
+app = Flask(__name__)
+
+app.config['SECRET_KEY'] = os.urandom(24)
+#改变持久化
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=2)
+
+@app.route('/')
+def hello_world():
+    session['username'] = '亚博'
+    session.permanent = True
+    return 'Hello World!'
+
+@app.route('/get_sessionn/')
+def get_session():
+    username = session.get('username')
+    return username or '没有sessionn'
+
+@app.route('/delete_sessionn/')
+def delete_session():
+    session.pop('username')
+    return '删除session成功'
+```
